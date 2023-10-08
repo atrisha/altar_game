@@ -37,14 +37,14 @@
 
     function preload ()
     {
-        this.load.image('sky', 'assets/sky.png');
-        this.load.image('ground', 'assets/platform.png');
-        this.load.image('red_apple', 'assets/fruits/pngs/red_apple.png');
-        this.load.image('banana', 'assets/fruits/pngs/bananas.png');
-        this.load.image('bomb', 'assets/bomb.png');
-        this.load.image('altar', 'assets/altar.png');
+        this.load.image('sky', 'static/phaser3-tutorial-src/assets/sky.png');
+        this.load.image('ground', 'static/phaser3-tutorial-src/assets/platform.png');
+        this.load.image('red_apple', 'static/phaser3-tutorial-src/assets/fruits/pngs/red_apple.png');
+        this.load.image('banana', 'static/phaser3-tutorial-src/assets/fruits/pngs/bananas.png');
+        this.load.image('bomb', 'static/phaser3-tutorial-src/assets/bomb.png');
+        this.load.image('altar', 'static/phaser3-tutorial-src/assets/altar.png');
         this.load.spritesheet('dude', 
-            'assets/dude.png',
+            'static/phaser3-tutorial-src/assets/dude.png',
             { frameWidth: 32, frameHeight: 48 }
         );
     }
