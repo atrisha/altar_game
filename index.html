@@ -53,13 +53,25 @@
     {   
 
         star.disableBody(true, true);
-        score += 10;
-        if (score==change_score)
-        	{ 
-				player.clearTint();
-			}
-        scoreText.setText('Score: ' + score);
+        console.log('collectingwww')
+        console.log(playerNames[1]+' collectingqq')
+        if (player.name==playerNames[1]) {
+            score_1 += 10;
+            if (score_1==change_score_1)
+                { 
+                    player.clearTint();
+                }
+            scoreText_1.setText(playerNames[0] +': ' + score_1);
+            }
+        else{
+            score_2 += 10;
+            if (score_2==change_score_2)
+                { 
+                    player.clearTint();
+                }
+            scoreText_2.setText(playerNames[1] +': ' + score_2);
 
+        }
          if (red_apples.countActive(true) === 0)
         {
             red_apples.children.iterate(function (child) {
@@ -99,11 +111,13 @@
         
     }
 
-    var score = 0;
-    
-    var scoreText;
-    
-    var change_score = 0
+    var score_1 = 0;
+    var scoreText_1;
+    var change_score_1 = 0
+
+    var score_2 = 0;
+    var scoreText_2;
+    var change_score_2 = 0
 
     function hitBomb (player, bomb)
     {
@@ -121,9 +135,15 @@
     function hitBanana (player, banana)
     {	
 		banana.disableBody(true, true);
-		change_score = score;
-        score = score - 20;
-        scoreText.setText('Score: ' + score);
+        if (player.name==playerNames[1]) {
+            change_score_1 = score_1;
+            score_1 = score_1 - 20;
+            scoreText_1.setText(playerNames[0]+': ' + score_1);
+        } else {
+            change_score_2 = score_2;
+            score_2 = score_2 - 20;
+            scoreText_2.setText(playerNames[1]+': ' + score_2);
+        }
 
         player.setTint(0xffff00);
 
@@ -165,9 +185,12 @@
             repeat: 1,
             setXY: { x: 100, y: 450, stepX: 100 }
         });
+        playerNames = ['Bubu', 'Tuki'];
+        let index = 0;
         players.children.iterate(function (child) {
             child.setBounce(0.2);
             child.setCollideWorldBounds(true);
+            child.name = playerNames[index++];
         });
         //player.setBounce(0.2);
         //player.setCollideWorldBounds(true);
@@ -190,7 +213,7 @@
         });
         red_apples.children.iterate(sprite => sprite.setScale(0.15));
         
-        altar_apple = this.physics.add.sprite(400, 272, 'red_apple').setScale(0.15);
+        altar_apple = this.physics.add.sprite(400, 272, 'banana').setScale(0.07);
 
         
         bananas = this.physics.add.group({
@@ -223,7 +246,8 @@
 		this.physics.add.overlap(players, red_apples, collectStar, null, this);
 		this.physics.add.overlap(players, altar_apple, eatAltarApple, null, this);
 
-        scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+        scoreText_1 = this.add.text(16, 16, 'Bubu: 0', { fontSize: '28px', fill: '#000' });
+        scoreText_2 = this.add.text(16, 35, 'Tuki: 0', { fontSize: '28px', fill: '#000' });
 
         this.anims.create({
             key: 'left',
