@@ -30,7 +30,7 @@ const config = {
     default: "arcade",
     arcade: {
       gravity: { y: 0 }, // Top down game, so no gravity
-      debug: true
+      debug: false
     }
   }
 };
@@ -50,6 +50,7 @@ function preload() {
   this.load.atlas("atlas", "./assets/atlas/atlas.png", "./assets/atlas/atlas.json");
   this.load.image('banana', 'assets/bananas.png');
   this.load.image('red_apple', 'assets/red_apple.png');
+
 }
 
 let player;
@@ -78,17 +79,58 @@ function spawnSpriteAtRandomTile() {
     };
 }
 
+function hitBanana (player, banana)
+    {	
+      banana.disableBody(true, true);
+          
+      change_score_1 = score_1;
+      score_1 = score_1 - 20;
+      scoreText_1.setText('Score'+': ' + score_1);
+        
+
+      player.setTint(0x00ff00);
+
+      
+        
+        if (bananas.countActive(true) === 0)
+        {
+            bananas.children.iterate(function (child) {
+              spawns = spawnSpriteAtRandomTile() 
+              console.log(spawns)
+              child.enableBody(true, spawns.worldX, spawns.worldY, true, true);
+
+            });
+         }
+
+    }
+
+function eatAltarBanana (player, apple)
+    {   
+      player.clearTint();
+      apple.disableBody(true, true);
+        
+        // Enable the sprite's physics body
+	    apple.enableBody(true, 1076, 194, true, true);
+	    
+	    // Set the sprite's alpha to 0 (make it fully transparent)
+	    apple.setAlpha(0);
+	    
+	    // Use a tween to fade the sprite in
+	    this.tweens.add({
+	        targets: apple,
+	        alpha: 1,  // Target alpha value (fully opaque)
+	        duration: 3000,  // Duration in milliseconds
+	        ease: 'Linear'  // Transition style
+	    });
+        
+    }    
 function collectStar (player, star)
     {   
 
         star.disableBody(true, true);
         
-            score_1 += 10;
-            if (score_1==change_score_1)
-                { 
-                    player.clearTint();
-                }
-            scoreText_1.setText('Score' +': ' + score_1);
+        score_1 += 10;
+        scoreText_1.setText('Score' +': ' + score_1);
             
          if (red_apples.countActive(true) === 0)
         {   
@@ -235,61 +277,34 @@ function create() {
   this.physics.add.collider(player, worldLayer);
   //player.body.collideWorldBounds=true;
 
-  /*
-const debugGraphics = this.add.graphics().setAlpha(0.75);
-worldLayer.renderDebug(debugGraphics, {
-  tileColor: null, // Color of non-colliding tiles
-  collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
-  faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
-});
-/*
-
-/*
-worldLayer.forEachTile((tile) => {
-  if (tile.properties.hasOwnProperty('collides')) {
-    console.log("Tile has the 'collides' property");
-} else {
-    console.log("Tile does not have the 'collides' property");
-}
-  console.log(`Tile at (${tile.x}, ${tile.y}) has collides: ${tile.properties.hasOwnProperty('collides')}`);
-});*/
-
-
   
 
-  this.input.keyboard.once("keydown-D", event => {
-    // Turn on physics debugging to show player's hitbox
-    this.physics.world.createDebugGraphic();
+  getAvailableTiles(map)
+  console.log(spawnable_tiles)
+  red_apples = this.physics.add.group();
+  for (let i = 0; i < 2; i++) {
+    spwans = spawnSpriteAtRandomTile()
+    console.log(spwans)
+    red_apples.create(spwans.worldX, spwans.worldY, 'red_apple');
+  }
+  red_apples.children.iterate(sprite => sprite.setScale(0.15));
 
-    // Create worldLayer collision graphic above the player, but below the help text
-    const graphics = this.add
-      .graphics()
-      .setAlpha(0.75)
-      .setDepth(20);
-    worldLayer.renderDebug(graphics, {
-      tileColor: null, // Color of non-colliding tiles
-      collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
-      faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
-    });
-  });
+  bananas = this.physics.add.group();
+  for (let i = 0; i < 2; i++) {
+    spwans = spawnSpriteAtRandomTile()
+    bananas.create(spwans.worldX, spwans.worldY, 'banana');
+  }
+  red_apples.children.iterate(sprite => sprite.setScale(0.15));
+  bananas.children.iterate(sprite => sprite.setScale(0.15));
 
-getAvailableTiles(map)
-console.log(spawnable_tiles)
-red_apples = this.physics.add.group();
-for (let i = 0; i < 2; i++) {
-  spwans = spawnSpriteAtRandomTile()
-  console.log(spwans)
-  red_apples.create(spwans.worldX, spwans.worldY, 'red_apple');
-}
-/*red_apples = this.physics.add.group({
-          key: 'red_apple',
-          repeat: 1,
-          setXY: { x: 200, y: 200, stepX: 70 }
-      });*/
+  this.physics.add.overlap(player, red_apples, collectStar, null, this);
+  this.physics.add.overlap(player, bananas, hitBanana, null, this);
 
-red_apples.children.iterate(sprite => sprite.setScale(0.15));
-this.physics.add.overlap(player, red_apples, collectStar, null, this);
-scoreText_1 = this.add.text(16, 30, 'Score: 0', { fontSize: '28px', fill: "#000000",backgroundColor: "#ffffff" });
+  altar_banana = this.physics.add.sprite(1076, 194, 'banana').setScale(0.25);
+  this.physics.add.overlap(player, altar_banana, eatAltarBanana, null, this);
+  bananas.children.iterate(sprite => sprite.setScale(0.12));
+
+  scoreText_1 = this.add.text(16, 30, 'Score: 0', { fontSize: '28px', fill: "#000000",backgroundColor: "#ffffff" });
 }
 
 
