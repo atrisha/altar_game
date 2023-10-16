@@ -13,8 +13,9 @@
     </style>
 </head>
 <body>
-
+<script src="/static/scripts/exportPackager.js"></script>
 <script type="text/javascript">
+
 
 const config = {
   type: Phaser.AUTO, // Which renderer to use
@@ -39,19 +40,19 @@ const game = new Phaser.Game(config);
 
 function preload() {
   // Runs once, loads up assets like images and audio
-  this.load.image("tiles", "./assets/tilesets/tuxmon-sample-32px-extruded.png");
-  this.load.image("tiles_pipoya", "./assets/tilesets/pipo-map001.png");
-  this.load.tilemapTiledJSON("map", "./assets/tilemaps/tuxemon-town.json");
+  this.load.image("tiles", "/static/assets/tilesets/tuxmon-sample-32px-extruded.png");
+  this.load.image("tiles_pipoya", "/static/assets/tilesets/pipo-map001.png");
+  this.load.tilemapTiledJSON("map", "/static/assets/tilemaps/tuxemon-town.json");
   /*
   this.load.spritesheet('dude', 
             'assets/dude.png',
             { frameWidth: 32, frameHeight: 48 }
         );
         */
-  this.load.atlas("atlas", "./assets/atlas/atlas.png", "./assets/atlas/atlas.json");
-  this.load.image('banana', 'assets/bananas.png');
-  this.load.image('red_apple', 'assets/red_apple.png');
-  this.load.image('star', 'assets/star.png');
+  this.load.atlas("atlas", "/static/assets/atlas/atlas.png", "/static/assets/atlas/atlas.json");
+  this.load.image('banana', '/static/assets/bananas.png');
+  this.load.image('red_apple', '/static/assets/red_apple.png');
+  this.load.image('star', '/static/assets/star.png');
 
 }
 
@@ -374,6 +375,14 @@ function create() {
   keyObj1 = this.input.keyboard.addKey('Q');
   keyObj2 = this.input.keyboard.addKey('W');
   
+  
+  this.time.addEvent({
+		    delay: 250,
+		    callback: () => stateDispatch(),
+		    loop: true
+		});
+  
+  
   /*
   const debugGraphics = this.add.graphics().setAlpha(0.7);
   worldLayer.renderDebug(debugGraphics, {
@@ -384,58 +393,12 @@ function create() {
   */
   
 
+
 }
 
 
 function update(time, delta) {
   /*
-  // Runs once per frame for the duration of the scene
-  players.getChildren()[0].body.setVelocity(0);
-  if (cursors.left.isDown)
-    {
-        //players.getChildren()[0].setVelocityX(-160);
-        players.getChildren()[0].anims.play('left', true);
-        players.getChildren()[0].body.setVelocityX(-100);
-        
-    }
-    else if (cursors.right.isDown)
-    {
-        //players.getChildren()[0].setVelocityX(160);
-        players.getChildren()[0].anims.play('right', true);
-        players.getChildren()[0].body.setVelocityX(100);
-        
-    }
-    else
-    {   
-        players.getChildren()[0].anims.play('turn');
-    }
-    if (cursors.up.isDown) {
-      players.getChildren()[0].body.setVelocityY(-100);
-    } else if (cursors.down.isDown) {
-      players.getChildren()[0].body.setVelocityY(100);
-    }
-    //players.getChildren()[0].body.velocity.normalize().scale(speed);
-    
-
-  // 1. Get the world X and Y of the player
-  
-  let playerWorldX = player.x;
-  let playerWorldY = player.y;
-
-  // 2. Convert the world coordinates to tile coordinates
-  let playerTileX = worldLayer.worldToTileX(playerWorldX);
-  let playerTileY = worldLayer.worldToTileY(playerWorldY);
-
-  // 3. Print the tile coordinates to the console
-  console.log(`Player is on tile X: ${playerTileX}, Y: ${playerTileY}`);
-  let tile = map.getTileAt(playerTileX, playerTileY, true, "World");  // replace x, y with your tile coordinates
-  if (tile && getCollision(tile.layer.properties)) {
-      console.log("Tile at x, y has collides property set to true!");
-  } else{
-    console.log("Tile at x, y has collides property set to false!");
-
-  }
-  */
   var prevVelocity = 0
       if (keyObj1.isDown) {
         var player = players.getChildren()[0] 
@@ -524,6 +487,7 @@ function update(time, delta) {
           else if (prevVelocity.y > 0) player.setTexture("atlas", "misa-front");
         
           }
+    
 
   }
   if (keyObj1.isUp){
@@ -536,32 +500,7 @@ function update(time, delta) {
     player.anims.stop();
     player.body.setVelocity(0)
   }
-  /*
-  let particles = this.add.particles('star');
-  players.getChildren().forEach(sprite => {
-    if (sprite.marked){
-      let emitter = particles.createEmitter({
-        speed: 100,
-        scale: { start: 1, end: 0 },  // Particle will shrink over time
-        blendMode: 'ADD',
-        lifespan: 500,  // 2000ms = 2 seconds
-        emitZone: {
-            source: new Phaser.Geom.Circle(0, 0, 2),
-            type: 'random',
-            quantity: 10
-          }
-      });
-
-      // Make the emitter follow the player sprite
-      emitter.startFollow(sprite);
-    } else {
-      emitter.stop();
-      particles.destroy();
-
-    }
-    
-
-  }*/
+  
   players.getChildren().forEach((sprite,idx) => {
     if (sprite.marked){
       
@@ -572,6 +511,84 @@ function update(time, delta) {
     }
   });
 
+ */
+ 
+}
+
+function backendHandler(player_actions){
+  for (const [index,action] of player_actions.entries()) {
+      var player = players.getChildren()[index] 
+      const speed = 175;
+      prevVelocity = player.body.velocity.clone();
+      // Stop any previous movement from the last frame
+      player.body.setVelocity(0);
+      if (action.Xv < 0) {
+        player.body.setVelocityX(-speed);
+      } else if (action.Xv > 0) {
+        player.body.setVelocityX(speed);
+      }
+
+      // Vertical movement
+      if (action.Yv > 0) {
+        player.body.setVelocityY(-speed);
+      } else if (action.Yv < 0) {
+        player.body.setVelocityY(speed);
+      }
+      // Normalize and scale the velocity so that player can't move faster along a diagonal
+      player.body.velocity.normalize().scale(speed);
+
+      if (action.Xv < 0) {
+        player.anims.play("misa-left-walk", true);
+      } else if (action.Xv > 0) {
+        player.anims.play("misa-right-walk", true);
+      } else if (action.Yv > 0) {
+        player.anims.play("misa-back-walk", true);
+      } else if (action.Yv < 0) {
+        player.anims.play("misa-front-walk", true);
+      } else {
+        player.anims.stop();
+        player.body.setVelocity(0);
+        // If we were moving, pick and idle frame to use
+        if (prevVelocity.x < 0) player.setTexture("atlas", "misa-left");
+        else if (prevVelocity.x > 0) player.setTexture("atlas", "misa-right");
+        else if (prevVelocity.y < 0) player.setTexture("atlas", "misa-back");
+        else if (prevVelocity.y > 0) player.setTexture("atlas", "misa-front");
+      
+        }
+  }
+  return true
+}
+
+const data_req = async (playerGroup_data) => {
+  const response = await fetch('/state-dispatch', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: playerGroup_data});
+  return resp_json = await response.json();
+  
+}
+last_dispatch_complete = true
+function stateDispatch() {
+  if (last_dispatch_complete) {
+    console.log('sent')
+    playerGroup_data = exportSpriteGroupToJSON(players)
+    last_dispatch_complete = false
+    data_req(playerGroup_data).then(resp_json => {
+      handled = backendHandler(resp_json.player_actions);
+      last_dispatch_complete = handled
+      console.log('received')
+    }).catch(error => {
+      
+      console.error(error); // Handle any errors here
+    });
+    
+    
+
+  }
+   
+  
 
 }
 
