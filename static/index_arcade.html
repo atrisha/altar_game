@@ -27,6 +27,7 @@ const config = {
     create: create,
     update: update
   },
+  rps: 4,
   physics: {
     default: "arcade",
     arcade: {
@@ -377,7 +378,7 @@ function create() {
   
   
   this.time.addEvent({
-		    delay: 250,
+		    delay: 1000/config.rps,
 		    callback: () => stateDispatch(),
 		    loop: true
 		});
