@@ -580,7 +580,7 @@ class MainScene extends Phaser.Scene {
 
 }
 }
-export default MainScene;
+
 
 const config = {
     type: Phaser.AUTO, // Which renderer to use

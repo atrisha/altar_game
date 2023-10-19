@@ -7,9 +7,7 @@ import random
 
 
 def control_player(state):
-    return random.choice([(1,1),(0,1),(1,0),(0,0),
-                          (-1,-1),(0,-1),(-1,0),
-                          (1,-1),(-1,1)])
+    return random.choice(['explore'])
 
 def handle_player_sprites(state):
     moves = []
