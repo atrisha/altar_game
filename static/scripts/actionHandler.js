@@ -1,3 +1,4 @@
+iter_per_calc = 500
 async function walkPath(scene,sprite,path,speed) {
     //console.log(sprite)
     //console.log(sprite.x,sprite.y)
@@ -11,8 +12,13 @@ async function walkPath(scene,sprite,path,speed) {
         console.log(path,currentPathIndex)
     }
     const finalPoint = path[path.length-1];
-    const distance = Phaser.Math.Distance.Between(sprite.x, sprite.y, targetPoint.x, targetPoint.y);
-    const finaldistance = Phaser.Math.Distance.Between(sprite.x, sprite.y, finalPoint.x, finalPoint.y);
+    try{
+        distance = Phaser.Math.Distance.Between(sprite.x, sprite.y, targetPoint.x, targetPoint.y);
+    } catch(error){
+        console.error('error_msg',path,currentPathIndex,targetPoint);
+        throw error
+    }
+        const finaldistance = Phaser.Math.Distance.Between(sprite.x, sprite.y, finalPoint.x, finalPoint.y);
     
     if (Math.abs(finaldistance) < 32) {
         currentPathIndex++;
@@ -84,42 +90,6 @@ async function walkPath(scene,sprite,path,speed) {
                 sprite.body.reset(targetPoint.x, targetPoint.y);                
             }
         }       
-        /*
-        if (action.Xv < 0) {
-            sprite.anims.play("misa-left-walk", true);
-        } else if (action.Xv > 0) {
-            sprite.anims.play("misa-right-walk", true);
-        } else if (action.Yv > 0) {
-            sprite.anims.play("misa-back-walk", true);
-        } else if (action.Yv < 0) {
-            sprite.anims.play("misa-front-walk", true);
-        } else {
-            sprite.anims.stop();
-            sprite.body.setVelocity(0);
-            // If we were moving, pick and idle frame to use
-            if (prevVelocity.x < 0) sprite.setTexture("atlas", "misa-left");
-            else if (prevVelocity.x > 0) sprite.setTexture("atlas", "misa-right");
-            else if (prevVelocity.y < 0) sprite.setTexture("atlas", "misa-back");
-            else if (prevVelocity.y > 0) sprite.setTexture("atlas", "misa-front");
-        
-        }
-        */
-       /*
-        if (angle < Math.pi/2 || angle > (3/2)*Math.pi) {
-          sprite.anims.play("misa-left-walk", true);
-        } else if (angle > Math.pi/2 || angle < (3/2)*Math.pi) {
-          sprite.anims.play("misa-right-walk", true);
-        } else if (angle < Math.pi) {
-          sprite.anims.play("misa-back-walk", true);
-        } else if (angle > Math.pi) {
-          sprite.anims.play("misa-front-walk", true);
-        } else {
-          //sprite.anims.stop();
-          //sprite.body.setVelocity(0);
-          sprite.anims.play("misa-front-walk", true);
-        
-          }
-          */
           
     }
     
@@ -145,7 +115,8 @@ function getLayerIndices(layer) {
     return indicesArray;
 }
 
-function handleExplore(easystar,easystar_alt,player,spawnlayer_arr,walk_arr,game){
+function handleExplore(options){
+    let { easystar, easystar_alt, player, spawnlayer_arr, walk_arr, game } = options;
     let easystar_obj;
     if (typeof player.current_path !== 'undefined' && player.currentPathIndex < player.current_path.length){
         console.log(player.name+' will walk '+player.currentPathIndex+'/'+player.current_path.length);
@@ -171,16 +142,137 @@ function handleExplore(easystar,easystar_alt,player,spawnlayer_arr,walk_arr,game
             console.log('target',Math.floor(spwans.worldX/32),Math.floor(spwans.worldY/32))
             throw new Error('no path error')
         } else {
-            world_path = path.map(point => ({x: point.y*32+16, y: point.x*32+16}));
-            player.current_path = world_path;
-            player.currentPathIndex = 1
-            walkPath(scene,player,world_path,320);
-            //game.drawSimplePolyline(world_path);
+            if (path.length>0) {
+                world_path = path.map(point => ({x: point.y*32+16, y: point.x*32+16}));
+                player.current_path = world_path;
+                player.currentPathIndex = 1
+                walkPath(scene,player,world_path,320);
+                //game.drawSimplePolyline(world_path);
+            }
             
         }
         });
-        easystar_obj.setIterationsPerCalculation(100);
+        easystar_obj.setIterationsPerCalculation(iter_per_calc);
         easystar_obj.calculate()
     }
     
 }
+
+function handleEatObject(options){
+   let {easystar,easystar_alt,player,spawnlayer_arr,walk_arr,game,object_sprite} = options;
+   let easystar_obj;
+   if (spawnlayer_arr[Math.floor(player.x/32)][Math.floor(player.y/32)] == 1 && spawnlayer_arr[Math.floor(object_sprite[0].x)][Math.floor(object_sprite[0].y)] == 1){
+        easystar_obj = easystar;
+    } else {
+        easystar_obj = easystar_alt;
+    }
+    try {
+        easystar_obj.findPath(Math.floor(player.y/32), Math.floor(player.x/32), Math.floor(object_sprite[0].y), Math.floor(object_sprite[0].x), function( path ) {
+            if (path === null) {
+                console.log('no path');
+                console.log(walk_arr);
+                console.log(Math.floor(player.x/32),Math.floor(player.y/32),player.name);
+                console.log(spawnlayer_arr[Math.floor(player.x/32)][Math.floor(player.y/32)],spawnlayer_arr[Math.floor(object_sprite[0].x)][Math.floor(object_sprite[0].y)]);
+                console.log(walk_arr[Math.floor(player.x/32)][Math.floor(player.y/32)],walk_arr[Math.floor(object_sprite[0].x)][Math.floor(object_sprite[0].y)]);
+                console.log('target',Math.floor(object_sprite[0].x),Math.floor(object_sprite[0].y))
+                console.log(path)
+                throw new Error('no path error')
+            } else {
+                if (path.length>0) {
+                    world_path = path.map(point => ({x: point.y*32+16, y: point.x*32+16}));
+                    player.current_path = world_path;
+                    player.currentPathIndex = 1
+                    walkPath(scene,player,world_path,320);
+                    //game.drawSimplePolyline(world_path);
+                }
+            }
+        });
+    } catch(error) {
+        console.error(Math.floor(player.y/32), Math.floor(player.x/32), Math.floor(object_sprite[0].y), Math.floor(object_sprite[0].x))
+        throw error
+    }
+    easystar_obj.setIterationsPerCalculation(iter_per_calc);
+    easystar_obj.calculate()
+}
+
+function handleVisitObject(options){
+    let {easystar,easystar_alt,player,spawnlayer_arr,walk_arr,game,object_sprite} = options;
+    let easystar_obj;
+    if (spawnlayer_arr[Math.floor(player.x/32)][Math.floor(player.y/32)] == 1 && spawnlayer_arr[Math.floor(object_sprite[0].x)][Math.floor(object_sprite[0].y)] == 1){
+         easystar_obj = easystar;
+     } else {
+         easystar_obj = easystar_alt;
+     }
+     try {
+         easystar_obj.findPath(Math.floor(player.y/32), Math.floor(player.x/32), Math.floor(object_sprite[0].y), Math.floor(object_sprite[0].x), function( path ) {
+             if (path === null) {
+                 console.log('no path');
+                 console.log(walk_arr);
+                 console.log(Math.floor(player.x/32),Math.floor(player.y/32),player.name);
+                 console.log(spawnlayer_arr[Math.floor(player.x/32)][Math.floor(player.y/32)],spawnlayer_arr[Math.floor(object_sprite[0].x)][Math.floor(object_sprite[0].y)]);
+                 console.log(walk_arr[Math.floor(player.x/32)][Math.floor(player.y/32)],walk_arr[Math.floor(object_sprite[0].x)][Math.floor(object_sprite[0].y)]);
+                 console.log('target',Math.floor(object_sprite[0].x),Math.floor(object_sprite[0].y))
+                 console.log(path)
+                 throw new Error('no path error')
+             } else {
+                 if (path.length>0) {
+                     world_path = path.map(point => ({x: point.y*32+16, y: point.x*32+16}));
+                     player.current_path = world_path;
+                     player.currentPathIndex = 1
+                     walkPath(scene,player,world_path,320);
+                     //game.drawSimplePolyline(world_path);
+                 }
+             }
+         });
+     } catch(error) {
+         console.error(Math.floor(player.y/32), Math.floor(player.x/32), Math.floor(object_sprite[0].y), Math.floor(object_sprite[0].x))
+         throw error
+     }
+     easystar_obj.setIterationsPerCalculation(iter_per_calc);
+     easystar_obj.calculate()
+ }
+
+function handleAvoidObject(options){
+    let {easystar,easystar_alt,player,spawnlayer_arr,walk_arr,game,object_sprite} = options;
+    let easystar_obj;
+    if (typeof player.current_path !== 'undefined' && player.currentPathIndex < player.current_path.length){
+        console.log(player.name+' will walk '+player.currentPathIndex+'/'+player.current_path.length);
+        walkPath(scene,player,player.current_path,320);
+        
+    } else {
+        spwans = game.spawnSpriteAtRandomTile();
+        
+
+        if (spawnlayer_arr[Math.floor(player.x/32)][Math.floor(player.y/32)] == 1){
+            easystar_obj = easystar
+        } else {
+            easystar_obj = easystar_alt
+        }
+        object_sprite.forEach((object) => {
+            easystar_obj.setAdditionalPointCost(object.y, object.x, 10);
+        });
+        easystar_obj.findPath(Math.floor(player.y/32), Math.floor(player.x/32), Math.floor(spwans.worldY/32), Math.floor(spwans.worldX/32), function( path ) {
+        console.log(player.name+' new path generated ');
+        if (path === null) {
+            console.log('no path');
+            console.log(walk_arr);
+            console.log(Math.floor(player.x/32),Math.floor(player.y/32),player.name);
+            console.log(spawnlayer_arr[Math.floor(player.x/32)][Math.floor(player.y/32)]);
+            console.log(walk_arr[Math.floor(player.x/32)][Math.floor(player.y/32)]);
+            //console.log('target',Math.floor(spwans.worldX/32),Math.floor(spwans.worldY/32))
+            throw new Error('no path error')
+        } else {
+            if (path.length>0) {
+                world_path = path.map(point => ({x: point.y*32+16, y: point.x*32+16}));
+                player.current_path = world_path;
+                player.currentPathIndex = 1
+                walkPath(scene,player,world_path,320);
+                //game.drawSimplePolyline(world_path);
+            }
+            
+        }
+        });
+        easystar_obj.setIterationsPerCalculation(iter_per_calc);
+        easystar_obj.calculate()
+    }
+ }

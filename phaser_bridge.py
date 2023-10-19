@@ -35,6 +35,8 @@ def send_sprite_state():
     req_ctr += 1
     print('received state information',req_ctr)
     player_actions = handle_player_sprites(sprite_state)
+    print('sent actions',[x[0] for x in player_actions])
+    print('sent attributes',[x[1]['action_attribute']['locations'] if x[0] in ['eat','avoid'] else None for x in player_actions])
     #player_actions_list = [{"Xv": xv, "Yv": yv} for xv, yv in player_actions]
     # Process the sprite state
     # For example, you might check conditions or store data
@@ -42,7 +44,8 @@ def send_sprite_state():
     resp_json = jsonify({
         'status': 'success',
         'resp_id': req_ctr,
-        'player_actions': player_actions_list
+        'player_actions': [x[1] for x in player_actions_list]
+        
     })
     return resp_json
 

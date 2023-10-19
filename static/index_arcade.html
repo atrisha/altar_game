@@ -354,7 +354,7 @@
     this.physics.add.overlap(players, red_apples, collectStar, null, this);
     this.physics.add.overlap(players, bananas, hitBanana, null, this);
   
-    altar_banana = this.physics.add.sprite(1076, 194, 'banana').setScale(0.25);
+    altar_banana = this.physics.add.sprite(1076, 200, 'banana').setScale(0.25);
     this.physics.add.overlap(players, altar_banana, eatAltarBanana, null, this);
     bananas.children.iterate(sprite => sprite.setScale(0.12));
   
@@ -475,120 +475,6 @@
         }
 
     });
-    /*
-    var prevVelocity = 0
-        if (keyObj1.isDown) {
-          var player = players.getChildren()[0] 
-          const speed = 175;
-          prevVelocity = player.body.velocity.clone();
-  
-          // Stop any previous movement from the last frame
-          player.body.setVelocity(0);
-  
-          // Horizontal movement
-          if (cursors.left.isDown && keyObj1.isDown) {
-            player.body.setVelocityX(-speed);
-          } else if (cursors.right.isDown && keyObj1.isDown) {
-            player.body.setVelocityX(speed);
-          }
-  
-          // Vertical movement
-          if (cursors.up.isDown && keyObj1.isDown) {
-            player.body.setVelocityY(-speed);
-          } else if (cursors.down.isDown && keyObj1.isDown) {
-            player.body.setVelocityY(speed);
-          }
-  
-          // Normalize and scale the velocity so that player can't move faster along a diagonal
-          player.body.velocity.normalize().scale(speed);
-  
-          // Update the animation last and give left/right animations precedence over up/down animations
-          if (cursors.left.isDown && keyObj1.isDown) {
-            player.anims.play("misa-left-walk", true);
-          } else if (cursors.right.isDown && keyObj1.isDown) {
-            player.anims.play("misa-right-walk", true);
-          } else if (cursors.up.isDown && keyObj1.isDown) {
-            player.anims.play("misa-back-walk", true);
-          } else if (cursors.down.isDown && keyObj1.isDown) {
-            player.anims.play("misa-front-walk", true);
-          } else {
-            player.anims.stop();
-            player.body.setVelocity(0);
-            // If we were moving, pick and idle frame to use
-            if (prevVelocity.x < 0) player.setTexture("atlas", "misa-left");
-            else if (prevVelocity.x > 0) player.setTexture("atlas", "misa-right");
-            else if (prevVelocity.y < 0) player.setTexture("atlas", "misa-back");
-            else if (prevVelocity.y > 0) player.setTexture("atlas", "misa-front");
-          }
-    } else if (keyObj2.isDown){
-          var player = players.getChildren()[1] 
-          const speed = 175;
-          prevVelocity = player.body.velocity.clone();
-  
-          // Stop any previous movement from the last frame
-          player.body.setVelocity(0);
-  
-          // Horizontal movement
-          if (cursors.left.isDown && keyObj2.isDown) {
-            player.body.setVelocityX(-speed);
-          } else if (cursors.right.isDown && keyObj2.isDown) {
-            player.body.setVelocityX(speed);
-          }
-  
-          // Vertical movement
-          if (cursors.up.isDown && keyObj2.isDown) {
-            player.body.setVelocityY(-speed);
-          } else if (cursors.down.isDown && keyObj2.isDown) {
-            player.body.setVelocityY(speed);
-          }
-  
-          // Normalize and scale the velocity so that player can't move faster along a diagonal
-          player.body.velocity.normalize().scale(speed);
-  
-          // Update the animation last and give left/right animations precedence over up/down animations
-          if (cursors.left.isDown && keyObj2.isDown) {
-            player.anims.play("misa-left-walk", true);
-          } else if (cursors.right.isDown && keyObj2.isDown) {
-            player.anims.play("misa-right-walk", true);
-          } else if (cursors.up.isDown && keyObj2.isDown) {
-            player.anims.play("misa-back-walk", true);
-          } else if (cursors.down.isDown && keyObj2.isDown) {
-            player.anims.play("misa-front-walk", true);
-          } else {
-            player.anims.stop();
-            player.body.setVelocity(0);
-            // If we were moving, pick and idle frame to use
-            if (prevVelocity.x < 0) player.setTexture("atlas", "misa-left");
-            else if (prevVelocity.x > 0) player.setTexture("atlas", "misa-right");
-            else if (prevVelocity.y < 0) player.setTexture("atlas", "misa-back");
-            else if (prevVelocity.y > 0) player.setTexture("atlas", "misa-front");
-          
-            }
-      
-  
-    }
-    if (keyObj1.isUp){
-      var player = players.getChildren()[0]
-      player.anims.stop();
-      player.body.setVelocity(0)
-    }
-    if (keyObj2.isUp){
-      var player = players.getChildren()[1]
-      player.anims.stop();
-      player.body.setVelocity(0)
-    }
-    
-    players.getChildren().forEach((sprite,idx) => {
-      if (sprite.marked){
-        
-        punishment_stars.getChildren()[idx].x=sprite.x
-        punishment_stars.getChildren()[idx].y=sprite.y
-      } else{
-        punishment_stars.getChildren()[idx].disableBody(true,true)
-      }
-    });
-  
-   */
    
   }
   
@@ -596,55 +482,51 @@
     console.log('response',resp_json)
     for (const [index,action] of resp_json.player_actions.entries()) {
         let player = players.getChildren()[index]
-        if (action == 'explore'){
-          handleExplore(easystar,easystar_alt,player,spawnlayer_arr,walk_arr,this)
-        }
+        if (action.action == 'explore'){
+          handleExplore({
+                        easystar: easystar,
+                        easystar_alt: easystar_alt,
+                        player: player,
+                        spawnlayer_arr: spawnlayer_arr,
+                        walk_arr: walk_arr,
+                        game: this
+                    });
+        } else if (action.action == 'avoid') {
+          avoid_object = action.action_attribute.locations
+          handleAvoidObject({
+                        easystar: easystar,
+                        easystar_alt: easystar_alt,
+                        player: player,
+                        spawnlayer_arr: spawnlayer_arr,
+                        walk_arr: walk_arr,
+                        game: this,
+                        object_sprite: avoid_object
+                    });
+        } else if (action.action == 'eat') {
+          eat_object = action.action_attribute.locations
+          handleEatObject({
+                        easystar: easystar,
+                        easystar_alt: easystar_alt,
+                        player: player,
+                        spawnlayer_arr: spawnlayer_arr,
+                        walk_arr: walk_arr,
+                        game: this,
+                        object_sprite: eat_object
+                    });
+        } else if (action.action == 'visit') {
+          visit_object = action.action_attribute.locations
+          handleVisitObject({
+                        easystar: easystar,
+                        easystar_alt: easystar_alt,
+                        player: player,
+                        spawnlayer_arr: spawnlayer_arr,
+                        walk_arr: walk_arr,
+                        game: this,
+                        object_sprite: visit_object
+                    });
+            }
 
         
-        //const path = navMesh.findPath({ x: player.x, y: player.y }, { x: 1056, y: 256 });
-        
-        
-        //walkPath(player,path,175)
-
-        /*
-        const speed = 175;
-        prevVelocity = player.body.velocity.clone();
-        // Stop any previous movement from the last frame
-        player.body.setVelocity(0);
-        if (action.Xv < 0) {
-          player.body.setVelocityX(-speed);
-        } else if (action.Xv > 0) {
-          player.body.setVelocityX(speed);
-        }
-  
-        // Vertical movement
-        if (action.Yv > 0) {
-          player.body.setVelocityY(-speed);
-        } else if (action.Yv < 0) {
-          player.body.setVelocityY(speed);
-        }
-        // Normalize and scale the velocity so that player can't move faster along a diagonal
-        player.body.velocity.normalize().scale(speed);
-  
-        if (action.Xv < 0) {
-          player.anims.play("misa-left-walk", true);
-        } else if (action.Xv > 0) {
-          player.anims.play("misa-right-walk", true);
-        } else if (action.Yv > 0) {
-          player.anims.play("misa-back-walk", true);
-        } else if (action.Yv < 0) {
-          player.anims.play("misa-front-walk", true);
-        } else {
-          player.anims.stop();
-          player.body.setVelocity(0);
-          // If we were moving, pick and idle frame to use
-          if (prevVelocity.x < 0) player.setTexture("atlas", "misa-left");
-          else if (prevVelocity.x > 0) player.setTexture("atlas", "misa-right");
-          else if (prevVelocity.y < 0) player.setTexture("atlas", "misa-back");
-          else if (prevVelocity.y > 0) player.setTexture("atlas", "misa-front");
-        
-          }
-        */
     }
     return true
   }
@@ -671,11 +553,9 @@
     return resp_json = await response.json();
     
   }
-  last_dispatch_complete = true;
-  function stateDispatch() {
-    if (last_dispatch_complete) {
-      /*
-      game.renderer.snapshot(imageBlob_full =>
+
+  function game_snapshot() {
+    game.renderer.snapshot(imageBlob_full =>
       {   
           
         //console.log(imageBlob_full)
@@ -697,17 +577,25 @@
         
         
       },type='image/jpeg',encoderOptions=0.1);
+  }
+  
+  last_dispatch_complete = true;
+
+  function stateDispatch() {
+    if (last_dispatch_complete) {
+      /*
+      
       */
-      playerGroup_data = exportSpriteGroupToJSON(players);
-      console.log('sent');
+      playerGroup_data = exportSpriteGroupToJSON(this);
+      //console.log('sent',playerGroup_data);
       
       last_dispatch_complete = false;
       data_req(playerGroup_data).then(resp_json => {
-        
+          console.log('received',resp_json.player_actions);
           handled = backendHandler(resp_json);
           last_dispatch_complete = handled
           ticker = resp_json.resp_id
-          console.log('received');
+          
         
       }).catch(error => {
         last_dispatch_complete = false;
