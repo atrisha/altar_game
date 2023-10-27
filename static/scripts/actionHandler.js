@@ -102,7 +102,6 @@ function getLayerIndices(layer) {
     const tileHeight = layer.tilemap.tileHeight;
     const layerWidthInTiles = layer.width / tileWidth;
     const layerHeightInTiles = layer.height / tileHeight;
-    console.log(layerHeightInTiles,layerWidthInTiles)
     for (let x = 0; x < layerWidthInTiles; x++) {
         const row = [];
         for (let y = 0; y < layerHeightInTiles; y++) {

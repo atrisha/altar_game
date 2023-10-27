@@ -78,6 +78,18 @@ function viewToArray(player, game_obj){
             });
         }
       });
+      game_obj.players.getChildren().forEach(sprite => {
+        if (player.name!=sprite.name && Math.abs(sprite.x-player.x) < 32*5 && Math.abs(sprite.y-player.y)< 32*5){
+            if (!surroundingTilesInfo['player']) {
+                surroundingTilesInfo['player'] = [];
+            }
+            surroundingTilesInfo['player'].push({
+                tilePosition: {x: sprite.x/32, y: sprite.y/32},
+                layer: -1,
+                poisoned_player : sprite.poisoned? true : false
+            });
+        }
+      });
     return surroundingTilesInfo
 }
 
@@ -90,9 +102,11 @@ function exportSpriteGroupToJSON(game_obj) {
             x: sprite.x,
             y: sprite.y,
             textureKey: sprite.texture.key,
-            frame: sprite.frame.name,
+            name: sprite.name,
             surroundingInfos: viewToArray(sprite, game_obj),
-            poisoned: sprite.poisoned ? true : false
+            poisoned: sprite.poisoned ? true : false,
+            score: game_obj.score_1,
+            punished: sprite.marked ? true: false
 
         };
         spritesData.push(spriteData);

@@ -64,13 +64,17 @@
   let player;
   var score_1 = 0;
   var scoreText_1;
-  var change_score_1 = 0
+  var change_score_1 = 0;
   
   var score_2 = 0;
   var scoreText_2;
-  var change_score_2 = 0
-  var ticker = 0
+  var change_score_2 = 0;
+  var ticker = 0;
   var scene;
+
+  num_apples = 5;
+  num_banana = 3;
+  num_players = 2;
   
   
   function spawnSpriteAtRandomTile() {
@@ -88,27 +92,64 @@
           worldY: worldY   // Some value for worldY
       };
   }
+
+  function flashBetweenSprites(spriteA, spriteB, scene) {
+    let graphics = scene.add.graphics({ lineStyle: { width: 2, color: 0xff0000 } }); // Red line
+    graphics.beginPath();
+    graphics.moveTo(spriteA.x, spriteA.y);
+    graphics.lineTo(spriteB.x, spriteB.y);
+    graphics.closePath();
+    graphics.strokePath();
+
+    return graphics;
+}
+
+  function createFlash(spriteA, spriteB, scene) {
+    let particles = scene.add.particles('particle');
+
+    let emitter = particles.createEmitter({
+        speed: 100,
+        scale: { start: 1, end: 0 },
+        blendMode: 'ADD',
+        lifespan: 800,
+        angle: { min: 0, max: 360 },
+        quantity: 500, // number of particles emitted
+    });
+
+    emitter.setPosition((spriteA.x + spriteB.x) / 2, (spriteA.y + spriteB.y) / 2);
+    emitter.explode();
+
+    // Automatically destroy the emitter after a short time
+    scene.time.delayedCall(1000, () => {
+        particles.destroy();
+    });
+}
+
   
-  function handlePlayerInteraction(sprite1, sprite2) {
-    
-      if (sprite1.poisoned && !sprite1.marked) {
+  function handlePlayerInteraction(sprite1, sprite2, scene) {
+      flash = false
+      if (sprite1.poisoned && !sprite1.marked && sprite2.will_punish) {
         score_1 = score_1 - 20;
         scoreText_1.setText('Score'+': ' + score_1);
         sprite1.marked = true
         punishment_stars.getChildren()[0].enableBody(true, sprite1.x, sprite1.y, true, true);
         punishment_stars.getChildren()[0].setAlpha(1);
-        
+        flash = flash || true
+        sprite2.will_punish = false
       }    
-      if (sprite2.poisoned && !sprite2.marked) {
+      if (sprite2.poisoned && !sprite2.marked && sprite1.will_punish) {
         score_1 = score_1 - 20;
         scoreText_1.setText('Score'+': ' + score_1);
         sprite2.marked = true
         punishment_stars.getChildren()[1].enableBody(true, sprite2.x, sprite2.y, true, true);
         punishment_stars.getChildren()[1].setAlpha(1);
+        flash = flash || true
+        sprite1.will_punish = false
         
-        
-      } 
-      
+      }
+      if (flash){
+        createFlash(sprite1, sprite2, scene); 
+      }
       /*
       this.tweens.add({
             targets: player,
@@ -133,16 +174,17 @@
   
         player.setTint(0x00ff00);
         player.poisoned = true
-        
+        score_1 = score_1 - 1;
+        scoreText_1.setText('Score'+': ' + score_1);
         
           
-          if (bananas.countActive(true) === 0)
+          if (bananas.countActive(true) < num_banana)
           {
               bananas.children.iterate(function (child) {
+                if (!child.body.enable) {
                 spawns = spawnSpriteAtRandomTile() 
-                console.log(spawns)
                 child.enableBody(true, spawns.worldX, spawns.worldY, true, true);
-  
+                }
               });
            }
   
@@ -179,16 +221,17 @@
           score_1 += 10;
           scoreText_1.setText('Score' +': ' + score_1);
               
-           if (red_apples.countActive(true) === 0)
+           if (red_apples.countActive(true) < num_apples)
           {   
               
               
               red_apples.children.iterate(function (child) {
+                if (!child.body.enable) {
                 spawns = spawnSpriteAtRandomTile() 
-                console.log(spawns)
                 child.enableBody(true, spawns.worldX, spawns.worldY, true, true);
-  
+                }
               });
+            
             }
       }
   
@@ -256,7 +299,7 @@
     aboveLayer.setDepth(10);
     const spawnPoint = map.findObject("Objects", obj => obj.name === "Spawn Point");
     getAvailableTiles(map)
-    console.log(spawnable_tiles)
+    
     /*
     players = this.physics.add.group({
               key: 'dude',
@@ -266,16 +309,16 @@
     
     cursors = this.input.keyboard.createCursorKeys();
     players = this.physics.add.group();
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < num_players; i++) {
       spwans = spawnSpriteAtRandomTile()
-      console.log(spwans)
       players.create(spwans.worldX, spwans.worldY, "atlas", "misa-front");
     }
-    player_names = ['player_1','player_2']
+    player_names = Array.from({length: num_players}, (_, i) => `player_${i+1}`);
     let idx = 0
     players.getChildren().forEach(sprite => {
       sprite.name = player_names[idx++]
       sprite.marked = false
+      sprite.will_punish = false
     });
   
     /*
@@ -333,18 +376,17 @@
     
   
     
-  
+    
     
     red_apples = this.physics.add.group();
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < num_apples; i++) {
       spwans = spawnSpriteAtRandomTile()
-      console.log(spwans)
       red_apples.create(spwans.worldX, spwans.worldY, 'red_apple');
     }
     red_apples.children.iterate(sprite => sprite.setScale(0.15));
   
     bananas = this.physics.add.group();
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < num_banana; i++) {
       spwans = spawnSpriteAtRandomTile()
       bananas.create(spwans.worldX, spwans.worldY, 'banana');
     }
@@ -358,9 +400,9 @@
     this.physics.add.overlap(players, altar_banana, eatAltarBanana, null, this);
     bananas.children.iterate(sprite => sprite.setScale(0.12));
   
-    this.physics.add.overlap(players, players, handlePlayerInteraction, null, this);
+    //this.physics.add.overlap(players, players, handlePlayerInteraction, null, this);
     punishment_stars = this.physics.add.group();
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < num_players; i++) {
       punishment_stars.create(1076, 194, 'star');
     }
     punishment_stars.children.iterate(sprite => sprite.disableBody(true,true));
@@ -392,18 +434,10 @@
         )
     );
     
-    console.log('walk_arr',walk_arr)
     easystar_alt = new EasyStar.js();
     easystar_alt.setGrid(walk_arr);
     easystar_alt.setAcceptableTiles([1]);
-    console.log('entry-------------------------')
-    easystar_alt.findPath(14,5, 10,32, function( path ) {
-      if (path === null) {
-            console.log('no path!!');
-      } else {
-        console.log('path!!!');
-      }
-    });
+    
 
 
 
@@ -432,6 +466,12 @@
     }
 }
   
+
+function checkVicinity(spriteA, spriteB, vicinityDistance) {
+    var distance = Phaser.Math.Distance.Between(spriteA.x, spriteA.y, spriteB.x, spriteB.y);
+    return distance <= vicinityDistance;
+}
+
   
   function update(time, delta) {
 
@@ -443,9 +483,18 @@
           scoreText_1.setText('Score'+': ' + score_1);
         }
       }
+      players.getChildren().forEach((spriteB, indexB) => {
+                if (index <= indexB) return; // Avoid checking the same pair twice
+                
+                if (checkVicinity(sprite, spriteB, 100)) {
+                    handlePlayerInteraction(sprite, spriteB, this);
+                }
+            });
       if (sprite.marked) {
         punishment_stars.getChildren()[index].enableBody(true, sprite.x, sprite.y, true, true);
         punishment_stars.getChildren()[index].setAlpha(1);
+      } else{
+        punishment_stars.getChildren()[index].disableBody(true,true)
       }
       if ('curr_target_pt' in sprite){
         const distance = Phaser.Math.Distance.Between(sprite.x, sprite.y, sprite.curr_target_pt.x, sprite.curr_target_pt.y);
@@ -524,9 +573,28 @@
                         game: this,
                         object_sprite: visit_object
                     });
-            }
+        } else if (action.action == 'punish') {
+          player.will_punish = true
+          handleExplore({
+                        easystar: easystar,
+                        easystar_alt: easystar_alt,
+                        player: player,
+                        spawnlayer_arr: spawnlayer_arr,
+                        walk_arr: walk_arr,
+                        game: this
+                    });
+        } else if (action.action == 'do_nothing') {
+          player.will_punish = false
+          handleExplore({
+                        easystar: easystar,
+                        easystar_alt: easystar_alt,
+                        player: player,
+                        spawnlayer_arr: spawnlayer_arr,
+                        walk_arr: walk_arr,
+                        game: this
+                    });
 
-        
+        }
     }
     return true
   }
