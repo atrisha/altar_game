@@ -2,13 +2,58 @@ from flask import Flask, render_template, jsonify, request, send_file
 from controllers.player_controllers import handle_player_sprites, insert_observation_data
 from PIL import Image
 import time
+import controllers.llm_controls
+from controllers import llm_controls,db_utils
+import webbrowser
+import importlib.util
+import os
+import sys
+from pathlib import Path
+
+# Calculate the path to the src directory from the perspective of a.py
+src_path = Path(__file__).resolve().parent.parent / 'src'
+sys.path.append(str(src_path))
+
+# Now you can import p
+import phaser_env_bridge
+
+
+def create_instance_from_path(module_path, class_name, *args, **kwargs):
+    """
+    Creates an instance of the specified class from the given module path.
+
+    :param module_path: The file system path to the Python module file.
+    :param class_name: The name of the class to instantiate.
+    :param args: Any positional arguments to pass to the class constructor.
+    :param kwargs: Any keyword arguments to pass to the class constructor.
+    :return: An instance of the specified class.
+    """
+    module_name = os.path.basename(module_path).replace('.py', '')
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    cls = getattr(module, class_name)
+    instance = cls(*args, **kwargs)
+    return instance
+
+
+
 
 app = Flask(__name__)
 direction = "none"
 
-req_ctr = 0
-prev_state,prev_action,prev_score = None, None, None
+url = 'localhost:8000'
 
+req_ctr = 0
+prev_state,prev_action,prev_score,curr_policy = None, None, None, None
+
+custom_env = None
+'''
+def register_env(env_path,env_class):
+    global env
+    instance = create_instance_from_path(env_path,env_class)
+    custom_env = instance
+'''
 @app.route('/')
 def index():
     path_to_html_file = "./static/index_arcade.html"
@@ -21,7 +66,7 @@ def get_direction():
 
 @app.route('/state-dispatch', methods=['POST'])
 def send_sprite_state():
-    global req_ctr,prev_state,prev_action,prev_score
+    global req_ctr,prev_state,prev_action,prev_score,curr_policy,custom_env
     '''
     file_data = request.files['image']
     if file_data:
@@ -33,30 +78,22 @@ def send_sprite_state():
         img.show()
     '''
     sprite_state = request.json
-    req_ctr += 1
-    print('received state information',req_ctr)
-    player_actions = handle_player_sprites(sprite_state)
-    if prev_score is not None and [x['score'] for x in sprite_state][0]-prev_score < 0:
+    sprite_state = request.json['player_data']
+    events = request.json['event_data']
+    if len(events) > 0:
         f=1
-    if req_ctr > 1:
-        insert_observation_data(prev_state,prev_action,[x['score'] for x in sprite_state],req_ctr-1)
-    prev_state = sprite_state
-    prev_score = [x['score'] for x in sprite_state][0]
-    prev_action = [x[1] for x in player_actions]
-    print('sent actions',[x[0] for x in player_actions])
-    print('sent attributes',[x[1]['action_attribute']['locations'] if x[0] in ['eat','avoid'] else None for x in player_actions])
-    #player_actions_list = [{"Xv": xv, "Yv": yv} for xv, yv in player_actions]
-    # Process the sprite state
-    # For example, you might check conditions or store data
-    player_actions_list = player_actions
-    resp_json = jsonify({
-        'status': 'success',
-        'resp_id': req_ctr,
-        'player_actions': [x[1] for x in player_actions_list]
-        
-    })
-    print(player_actions_list)
+    print('received state information',req_ctr)
+    
+    phaser_env_bridge.phaser_to_env_queue.put({req_ctr:{'sprite_state':sprite_state,'events':events}})
+    resp_json = phaser_env_bridge.env_to_phaser_queue.get()
+    resp_json = resp_json[req_ctr]
+    resp_json = jsonify(resp_json)
+    req_ctr += 1
+    
     return resp_json
 
-if __name__ == '__main__':
-    app.run(debug=True,port=8000)
+#if __name__ == '__main__':
+    #register_env('env/AltarEnv.py','AltarMARLEnv')
+def start_app():
+    app.run(debug=False,port=8000)
+    

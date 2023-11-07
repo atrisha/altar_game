@@ -119,7 +119,7 @@ function handleExplore(options){
     let easystar_obj;
     if (typeof player.current_path !== 'undefined' && player.currentPathIndex < player.current_path.length){
         console.log(player.name+' will walk '+player.currentPathIndex+'/'+player.current_path.length);
-        walkPath(scene,player,player.current_path,320);
+        walkPath(scene,player,player.current_path,game.config.rps*32);
         
     } else {
         spwans = game.spawnSpriteAtRandomTile();
@@ -145,7 +145,7 @@ function handleExplore(options){
                 world_path = path.map(point => ({x: point.y*32+16, y: point.x*32+16}));
                 player.current_path = world_path;
                 player.currentPathIndex = 1
-                walkPath(scene,player,world_path,320);
+                walkPath(scene,player,world_path,game.config.rps*32);
                 //game.drawSimplePolyline(world_path);
             }
             
@@ -181,7 +181,7 @@ function handleEatObject(options){
                     world_path = path.map(point => ({x: point.y*32+16, y: point.x*32+16}));
                     player.current_path = world_path;
                     player.currentPathIndex = 1
-                    walkPath(scene,player,world_path,320);
+                    walkPath(scene,player,world_path,game.config.rps*32);
                     //game.drawSimplePolyline(world_path);
                 }
             }
@@ -218,7 +218,7 @@ function handleVisitObject(options){
                      world_path = path.map(point => ({x: point.y*32+16, y: point.x*32+16}));
                      player.current_path = world_path;
                      player.currentPathIndex = 1
-                     walkPath(scene,player,world_path,320);
+                     walkPath(scene,player,world_path,game.config.rps*32);
                      //game.drawSimplePolyline(world_path);
                  }
              }
@@ -236,7 +236,7 @@ function handleAvoidObject(options){
     let easystar_obj;
     if (typeof player.current_path !== 'undefined' && player.currentPathIndex < player.current_path.length){
         console.log(player.name+' will walk '+player.currentPathIndex+'/'+player.current_path.length);
-        walkPath(scene,player,player.current_path,320);
+        walkPath(scene,player,player.current_path,game.config.rps*32);
         
     } else {
         spwans = game.spawnSpriteAtRandomTile();
@@ -248,7 +248,7 @@ function handleAvoidObject(options){
             easystar_obj = easystar_alt
         }
         object_sprite.forEach((object) => {
-            easystar_obj.setAdditionalPointCost(object.y, object.x, 10);
+            easystar_obj.setAdditionalPointCost(object.y, object.x, 100);
         });
         easystar_obj.findPath(Math.floor(player.y/32), Math.floor(player.x/32), Math.floor(spwans.worldY/32), Math.floor(spwans.worldX/32), function( path ) {
         console.log(player.name+' new path generated ');
@@ -265,7 +265,7 @@ function handleAvoidObject(options){
                 world_path = path.map(point => ({x: point.y*32+16, y: point.x*32+16}));
                 player.current_path = world_path;
                 player.currentPathIndex = 1
-                walkPath(scene,player,world_path,320);
+                walkPath(scene,player,world_path,game.config.rps*32);
                 //game.drawSimplePolyline(world_path);
             }
             

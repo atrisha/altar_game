@@ -20,7 +20,7 @@
 <script type="text/javascript">
 
 
-  const config = {
+  var config = {
     type: Phaser.AUTO, // Which renderer to use
     width: 1280, // Canvas width in pixels
     height: 1280, // Canvas height in pixels
@@ -31,7 +31,7 @@
       create: create,
       update: update
     },
-    rps: 10,
+    rps: 60,
     physics: {
       default: "arcade",
       arcade: {
@@ -71,10 +71,13 @@
   var change_score_2 = 0;
   var ticker = 0;
   var scene;
+  var event_chain = []
 
   num_apples = 5;
   num_banana = 3;
   num_players = 2;
+
+
   
   
   function spawnSpriteAtRandomTile() {
@@ -129,23 +132,32 @@
   function handlePlayerInteraction(sprite1, sprite2, scene) {
       flash = false
       if (sprite1.poisoned && !sprite1.marked && sprite2.will_punish) {
-        score_1 = score_1 - 20;
-        scoreText_1.setText('Score'+': ' + score_1);
+        sprite1.score_1 = sprite1.score_1 - 20;
+        scoreText_1.setText('Score'+': ' + sprite1.score_1);
         sprite1.marked = true
         punishment_stars.getChildren()[0].enableBody(true, sprite1.x, sprite1.y, true, true);
         punishment_stars.getChildren()[0].setAlpha(1);
         flash = flash || true
         sprite2.will_punish = false
-      }    
+        event_chain.push(sprite1.name+' sees another player')
+        event_chain.push(sprite1.name+' is punished by that player')
+      } else if (!sprite2.will_punish){
+        event_chain.push(sprite1.name+' sees another player')
+        event_chain.push(sprite1.name+' is greeted by that player')
+      }   
       if (sprite2.poisoned && !sprite2.marked && sprite1.will_punish) {
-        score_1 = score_1 - 20;
-        scoreText_1.setText('Score'+': ' + score_1);
+        sprite2.score_1 = sprite2.score_1 - 20;
+        scoreText_2.setText('Score'+': ' + sprite2.score_1);
         sprite2.marked = true
         punishment_stars.getChildren()[1].enableBody(true, sprite2.x, sprite2.y, true, true);
         punishment_stars.getChildren()[1].setAlpha(1);
         flash = flash || true
         sprite1.will_punish = false
-        
+        event_chain.push(sprite2.name+' sees another player')
+        event_chain.push(sprite2.name+' is punished by that player')
+      } else if (!sprite1.will_punish){
+        event_chain.push(sprite2.name+' sees another player')
+        event_chain.push(sprite2.name+' is greeted by that player')
       }
       if (flash){
         createFlash(sprite1, sprite2, scene); 
@@ -174,9 +186,14 @@
   
         player.setTint(0x00ff00);
         player.poisoned = true
-        score_1 = score_1 - 1;
-        scoreText_1.setText('Score'+': ' + score_1);
-        
+        player.score_1 = player.score_1 + 10;
+        if (player.name=='player_1'){
+          scoreText_1.setText('Score'+': ' + player.score_1);
+        } else {
+          scoreText_2.setText('Score'+': ' + player.score_1);
+        }
+        event_chain.push(player.name+' ate banana')
+        event_chain.push(player.name+' turned green')
           
           if (bananas.countActive(true) < num_banana)
           {
@@ -192,8 +209,16 @@
   
   function eatAltarBanana (apple, player)
       { 
+        event_chain.push(player.name+' visits an altar. altar has a big banana image.')
+        
         player.clearTint();
-        player.poisoned = false
+        if (player.poisoned) {
+          player.poisoned = false
+          event_chain.push(player.name+'absolved from punishment.')
+        
+        } else {
+          player.score_1 = player.score_1 - 2;
+        }
         player.marked = false
         apple.disableBody(true, true);
           
@@ -218,9 +243,13 @@
   
           star.disableBody(true, true);
           
-          score_1 += 10;
-          scoreText_1.setText('Score' +': ' + score_1);
-              
+          player.score_1 += 10;
+          if (player.name=='player_1'){
+            scoreText_1.setText('Score' +': ' + player.score_1);
+          } else{
+            scoreText_2.setText('Score' +': ' + player.score_1);
+          }
+          event_chain.push(player.name+' ate an apple')
            if (red_apples.countActive(true) < num_apples)
           {   
               
@@ -319,6 +348,7 @@
       sprite.name = player_names[idx++]
       sprite.marked = false
       sprite.will_punish = false
+      sprite.score_1 = score_1
     });
   
     /*
@@ -409,6 +439,7 @@
     
   
     scoreText_1 = this.add.text(16, 30, 'Score: 0', { fontSize: '28px', fill: "#000000",backgroundColor: "#ffffff" });
+    scoreText_2 = this.add.text(16, 60, 'Score: 0', { fontSize: '28px', fill: "#000000",backgroundColor: "#ffffff" });
     //coreText_1 = this.add.text(16, 60, 'Press Q/W (and arrows) to move player', { fontSize: '28px', fill: "#000000",backgroundColor: "#ffffff" });
     keyObj1 = this.input.keyboard.addKey('Q');
     keyObj2 = this.input.keyboard.addKey('W');
@@ -479,9 +510,13 @@ function checkVicinity(spriteA, spriteB, vicinityDistance) {
     players.getChildren().forEach((sprite, index) => {
       if (sprite.poisoned){
         if (ticker%10==0){
-          score_1 = score_1 - 1;
-          scoreText_1.setText('Score'+': ' + score_1);
+          sprite.score_1 = sprite.score_1 - config.rps/10;
         }
+      }
+      if (index==0){
+        scoreText_1.setText('Score'+': ' + sprite.score_1);
+      } else {
+        scoreText_2.setText('Score'+': ' + sprite.score_1);
       }
       players.getChildren().forEach((spriteB, indexB) => {
                 if (index <= indexB) return; // Avoid checking the same pair twice
@@ -655,14 +690,16 @@ function checkVicinity(spriteA, spriteB, vicinityDistance) {
       
       */
       playerGroup_data = exportSpriteGroupToJSON(this);
-      //console.log('sent',playerGroup_data);
+      event_chain = []
+      console.log('sent',playerGroup_data);
       
       last_dispatch_complete = false;
       data_req(playerGroup_data).then(resp_json => {
           console.log('received',resp_json.player_actions);
+          //event_chain = []
           handled = backendHandler(resp_json);
-          last_dispatch_complete = handled
-          ticker = resp_json.resp_id
+          last_dispatch_complete = handled;
+          ticker = resp_json.resp_id;
           
         
       }).catch(error => {

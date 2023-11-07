@@ -105,12 +105,12 @@ function exportSpriteGroupToJSON(game_obj) {
             name: sprite.name,
             surroundingInfos: viewToArray(sprite, game_obj),
             poisoned: sprite.poisoned ? true : false,
-            score: game_obj.score_1,
+            score: sprite.score_1,
             punished: sprite.marked ? true: false
 
         };
         spritesData.push(spriteData);
     });
 
-    return JSON.stringify(spritesData, null, 4);
+    return JSON.stringify({player_data:spritesData,event_data:event_chain}, null, 4);
 }
