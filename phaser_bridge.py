@@ -44,7 +44,11 @@ direction = "none"
 
 url = 'localhost:8000'
 
+<<<<<<< HEAD
 
+=======
+req_ctr = 0
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
 prev_state,prev_action,prev_score,curr_policy = None, None, None, None
 
 custom_env = None
@@ -66,7 +70,11 @@ def get_direction():
 
 @app.route('/state-dispatch', methods=['POST'])
 def send_sprite_state():
+<<<<<<< HEAD
     global prev_state,prev_action,prev_score,curr_policy,custom_env
+=======
+    global req_ctr,prev_state,prev_action,prev_score,curr_policy,custom_env
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
     '''
     file_data = request.files['image']
     if file_data:
@@ -80,14 +88,21 @@ def send_sprite_state():
     sprite_state = request.json
     sprite_state = request.json['player_data']
     events = request.json['event_data']
+<<<<<<< HEAD
     req_ctr = int(request.json['req_id'])
+=======
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
     if len(events) > 0:
         f=1
     print('received state information',req_ctr)
     
     phaser_env_bridge.phaser_to_env_queue.put({req_ctr:{'sprite_state':sprite_state,'events':events}})
     resp_json = phaser_env_bridge.env_to_phaser_queue.get()
+<<<<<<< HEAD
     resp_json = list(resp_json.values())[-1]
+=======
+    resp_json = resp_json[req_ctr]
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
     resp_json = jsonify(resp_json)
     req_ctr += 1
     

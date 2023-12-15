@@ -68,12 +68,16 @@
   
   var score_2 = 0;
   var scoreText_2;
+<<<<<<< HEAD
   var scoreText_3;
+=======
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
   var change_score_2 = 0;
   var ticker = 0;
   var scene;
   var event_chain = []
 
+<<<<<<< HEAD
   num_apples = 20;
   num_banana = 10;
   num_players = 3;
@@ -86,6 +90,12 @@
   var victim_punishment_cost = -20;
 
   var score_vars = [scoreText_1, scoreText_2, scoreText_3]
+=======
+  num_apples = 5;
+  num_banana = 3;
+  num_players = 2;
+
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
 
   
   
@@ -137,6 +147,7 @@
     });
 }
 
+<<<<<<< HEAD
 function handlePunishment(spritePunisher, spriteVictim, poisonedCondition) {
   flash = false
   punish_condition = (spritePunisher.punish_green && poisonedCondition) || 
@@ -192,31 +203,89 @@ function handlePunishment(spritePunisher, spriteVictim, poisonedCondition) {
         createFlash(sprite1, sprite2, scene); 
       }
       
+=======
+  
+  function handlePlayerInteraction(sprite1, sprite2, scene) {
+      flash = false
+      if (sprite1.poisoned && !sprite1.marked && sprite2.will_punish) {
+        sprite1.score_1 = sprite1.score_1 - 20;
+        scoreText_1.setText('Score'+': ' + sprite1.score_1);
+        sprite1.marked = true
+        punishment_stars.getChildren()[0].enableBody(true, sprite1.x, sprite1.y, true, true);
+        punishment_stars.getChildren()[0].setAlpha(1);
+        flash = flash || true
+        sprite2.will_punish = false
+        event_chain.push(sprite1.name+' sees another player')
+        event_chain.push(sprite1.name+' is punished by that player')
+      } else if (!sprite2.will_punish){
+        event_chain.push(sprite1.name+' sees another player')
+        event_chain.push(sprite1.name+' is greeted by that player')
+      }   
+      if (sprite2.poisoned && !sprite2.marked && sprite1.will_punish) {
+        sprite2.score_1 = sprite2.score_1 - 20;
+        scoreText_2.setText('Score'+': ' + sprite2.score_1);
+        sprite2.marked = true
+        punishment_stars.getChildren()[1].enableBody(true, sprite2.x, sprite2.y, true, true);
+        punishment_stars.getChildren()[1].setAlpha(1);
+        flash = flash || true
+        sprite1.will_punish = false
+        event_chain.push(sprite2.name+' sees another player')
+        event_chain.push(sprite2.name+' is punished by that player')
+      } else if (!sprite1.will_punish){
+        event_chain.push(sprite2.name+' sees another player')
+        event_chain.push(sprite2.name+' is greeted by that player')
+      }
+      if (flash){
+        createFlash(sprite1, sprite2, scene); 
+      }
+      /*
+      this.tweens.add({
+            targets: player,
+            alpha: 0,  // Target alpha value (fully opaque)
+            duration: 1000,  // Duration in milliseconds
+            ease: 'Linear'  // Transition style
+        });
+      */
+        //punishment_star.disableBody(true,true)
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
   
   }
   
   
   function hitBanana (player, banana)
       {	
+<<<<<<< HEAD
         if (player.eat_banana){
+=======
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
         banana.disableBody(true, true);
         /*    
         change_score_1 = score_1;
         score_1 = score_1 - 20;
         scoreText_1.setText('Score'+': ' + score_1);
         */
+<<<<<<< HEAD
         player.last_poisoned_time = ticker
         player.setTint(0x00ff00);
         player.poisoned = true
         player.score_1 = player.score_1 + banana_reward;
         /*
+=======
+  
+        player.setTint(0x00ff00);
+        player.poisoned = true
+        player.score_1 = player.score_1 + 10;
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
         if (player.name=='player_1'){
           scoreText_1.setText('Score'+': ' + player.score_1);
         } else {
           scoreText_2.setText('Score'+': ' + player.score_1);
         }
+<<<<<<< HEAD
         */
        player.score_var.setText('Score' + ': ' + player.score_1);
+=======
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
         event_chain.push(player.name+' ate banana')
         event_chain.push(player.name+' turned green')
           
@@ -229,18 +298,28 @@ function handlePunishment(spritePunisher, spriteVictim, poisonedCondition) {
                 }
               });
            }
+<<<<<<< HEAD
         }
       }
   
   function eatAltarBanana (apple, player, scene)
       { 
         //event_chain.push(player.name+' visits an altar. altar has a big banana image.')
+=======
+  
+      }
+  
+  function eatAltarBanana (apple, player)
+      { 
+        event_chain.push(player.name+' visits an altar. altar has a big banana image.')
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
         
         player.clearTint();
         if (player.poisoned) {
           player.poisoned = false
           event_chain.push(player.name+'absolved from punishment.')
         
+<<<<<<< HEAD
         }
         player.marked = false
         //apple.disableBody(true, true);
@@ -255,11 +334,29 @@ function handlePunishment(spritePunisher, spriteVictim, poisonedCondition) {
         // Use a tween to fade the sprite in
         /*
         scene.tweens.add({
+=======
+        } else {
+          player.score_1 = player.score_1 - 2;
+        }
+        player.marked = false
+        apple.disableBody(true, true);
+          
+          // Enable the sprite's physics body
+        //player.enableBody(true, 1076, 194, true, true);
+        apple.enableBody(true, apple.x, apple.y, true, true);
+        
+        // Set the sprite's alpha to 0 (make it fully transparent)
+        apple.setAlpha(0);
+        
+        // Use a tween to fade the sprite in
+        this.tweens.add({
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
             targets: apple,
             alpha: 1,  // Target alpha value (fully opaque)
             duration: 3000,  // Duration in milliseconds
             ease: 'Linear'  // Transition style
         });
+<<<<<<< HEAD
           */
       }    
   
@@ -272,12 +369,25 @@ function handlePunishment(spritePunisher, spriteVictim, poisonedCondition) {
           player.score_1 += apple_reward;
           player.score_var.setText('Score' +': ' + player.score_1);
           /*
+=======
+          
+      }    
+  function collectStar (player, star)
+      {   
+  
+          star.disableBody(true, true);
+          
+          player.score_1 += 10;
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
           if (player.name=='player_1'){
             scoreText_1.setText('Score' +': ' + player.score_1);
           } else{
             scoreText_2.setText('Score' +': ' + player.score_1);
           }
+<<<<<<< HEAD
           */
+=======
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
           event_chain.push(player.name+' ate an apple')
            if (red_apples.countActive(true) < num_apples)
           {   
@@ -291,11 +401,17 @@ function handlePunishment(spritePunisher, spriteVictim, poisonedCondition) {
               });
             
             }
+<<<<<<< HEAD
           }
       }
   
   
   
+=======
+      }
+  
+  
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
   function getCollision(obj_arr) {
     let obj = obj_arr.find(item => item.name === 'collides');
     let value = obj ? obj.value : false;
@@ -375,12 +491,19 @@ function handlePunishment(spritePunisher, spriteVictim, poisonedCondition) {
     }
     player_names = Array.from({length: num_players}, (_, i) => `player_${i+1}`);
     let idx = 0
+<<<<<<< HEAD
     players.getChildren().forEach((sprite,idx) => {
+=======
+    players.getChildren().forEach(sprite => {
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
       sprite.name = player_names[idx++]
       sprite.marked = false
       sprite.will_punish = false
       sprite.score_1 = score_1
+<<<<<<< HEAD
       sprite.score_var = score_vars[idx]
+=======
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
     });
   
     /*
@@ -455,7 +578,11 @@ function handlePunishment(spritePunisher, spriteVictim, poisonedCondition) {
     red_apples.children.iterate(sprite => sprite.setScale(0.15));
     bananas.children.iterate(sprite => sprite.setScale(0.15));
   
+<<<<<<< HEAD
     this.physics.add.overlap(players, red_apples, hitApple, null, this);
+=======
+    this.physics.add.overlap(players, red_apples, collectStar, null, this);
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
     this.physics.add.overlap(players, bananas, hitBanana, null, this);
   
     altar_banana = this.physics.add.sprite(1076, 200, 'banana').setScale(0.25);
@@ -470,6 +597,7 @@ function handlePunishment(spritePunisher, spriteVictim, poisonedCondition) {
     punishment_stars.children.iterate(sprite => sprite.disableBody(true,true));
     
   
+<<<<<<< HEAD
     score_vars[0] = this.add.text(16, 30, 'Score: 0', { fontSize: '28px', fill: "#000000",backgroundColor: "#ffffff" });
     score_vars[1] = this.add.text(16, 60, 'Score: 0', { fontSize: '28px', fill: "#000000",backgroundColor: "#ffffff" });
     score_vars[2] = this.add.text(16, 90, 'Score: 0', { fontSize: '28px', fill: "#000000",backgroundColor: "#ffffff" });
@@ -477,6 +605,10 @@ function handlePunishment(spritePunisher, spriteVictim, poisonedCondition) {
       
       sprite.score_var = score_vars[idx]
     });
+=======
+    scoreText_1 = this.add.text(16, 30, 'Score: 0', { fontSize: '28px', fill: "#000000",backgroundColor: "#ffffff" });
+    scoreText_2 = this.add.text(16, 60, 'Score: 0', { fontSize: '28px', fill: "#000000",backgroundColor: "#ffffff" });
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
     //coreText_1 = this.add.text(16, 60, 'Press Q/W (and arrows) to move player', { fontSize: '28px', fill: "#000000",backgroundColor: "#ffffff" });
     keyObj1 = this.input.keyboard.addKey('Q');
     keyObj2 = this.input.keyboard.addKey('W');
@@ -523,6 +655,7 @@ function handlePunishment(spritePunisher, spriteVictim, poisonedCondition) {
   
   }
 
+<<<<<<< HEAD
 function reset_player(player) {
   player.clearTint();
   player.marked = false
@@ -553,6 +686,8 @@ function reset_player(player) {
   
 }
 
+=======
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
   function drawSimplePolyline(points) {
     
     var graphics = scene.add.graphics({ lineStyle: { width: 2, color: 0xff0000 } });
@@ -563,8 +698,12 @@ function reset_player(player) {
         scene.add.circle( points[i].x, points[i].y, 3,  0xff0000);
     }
 }
+<<<<<<< HEAD
 
 
+=======
+  
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
 
 function checkVicinity(spriteA, spriteB, vicinityDistance) {
     var distance = Phaser.Math.Distance.Between(spriteA.x, spriteA.y, spriteB.x, spriteB.y);
@@ -576,6 +715,7 @@ function checkVicinity(spriteA, spriteB, vicinityDistance) {
 
     let prevVelocity = {x:0,y:1}
     players.getChildren().forEach((sprite, index) => {
+<<<<<<< HEAD
       /*
       if (index==0){
         scoreText_1.setText('Score'+': ' + sprite.score_1);
@@ -589,6 +729,18 @@ function checkVicinity(spriteA, spriteB, vicinityDistance) {
       }
       */
       sprite.score_var.setText('Score' + ': ' + sprite.score_1);
+=======
+      if (sprite.poisoned){
+        if (ticker%10==0){
+          sprite.score_1 = sprite.score_1 - config.rps/10;
+        }
+      }
+      if (index==0){
+        scoreText_1.setText('Score'+': ' + sprite.score_1);
+      } else {
+        scoreText_2.setText('Score'+': ' + sprite.score_1);
+      }
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
       players.getChildren().forEach((spriteB, indexB) => {
                 if (index <= indexB) return; // Avoid checking the same pair twice
                 
@@ -609,6 +761,7 @@ function checkVicinity(spriteA, spriteB, vicinityDistance) {
           sprite.body.reset(sprite.curr_target_pt.x, sprite.curr_target_pt.y)
         }
       }
+<<<<<<< HEAD
     let worldBounds = this.physics.world.bounds;
 
     // Check for left boundary
@@ -617,6 +770,9 @@ function checkVicinity(spriteA, spriteB, vicinityDistance) {
     }
 
     
+=======
+      
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
       if (sprite.body.velocity.x < 0) {
             sprite.anims.play("misa-left-walk", true);
         } else if (sprite.body.velocity.x > 0) {
@@ -629,10 +785,17 @@ function checkVicinity(spriteA, spriteB, vicinityDistance) {
             sprite.anims.stop();
             sprite.body.setVelocity(0);
             // If we were moving, pick and idle frame to use
+<<<<<<< HEAD
             if (prevVelocity.x < 0) sprite.setTexture("atlas", "misa-left-walk");
             else if (prevVelocity.x > 0) sprite.setTexture("atlas", "misa-right-walk");
             else if (prevVelocity.y < 0) sprite.setTexture("atlas", "misa-back-walk");
             else if (prevVelocity.y > 0) sprite.setTexture("atlas", "misa-front-walk");
+=======
+            if (prevVelocity.x < 0) sprite.setTexture("atlas", "misa-left");
+            else if (prevVelocity.x > 0) sprite.setTexture("atlas", "misa-right");
+            else if (prevVelocity.y < 0) sprite.setTexture("atlas", "misa-back");
+            else if (prevVelocity.y > 0) sprite.setTexture("atlas", "misa-front");
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
         
         }
 
@@ -640,7 +803,11 @@ function checkVicinity(spriteA, spriteB, vicinityDistance) {
    
   }
   
+<<<<<<< HEAD
   function backendHandler1(resp_json){
+=======
+  function backendHandler(resp_json){
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
     console.log('response',resp_json)
     for (const [index,action] of resp_json.player_actions.entries()) {
         let player = players.getChildren()[index]
@@ -712,6 +879,7 @@ function checkVicinity(spriteA, spriteB, vicinityDistance) {
     return true
   }
   
+<<<<<<< HEAD
   function backendHandler(resp_json){
     console.log('response',resp_json)
     for (const [index,action] of resp_json.player_actions.action.entries()) {
@@ -760,6 +928,8 @@ function checkVicinity(spriteA, spriteB, vicinityDistance) {
   
   
 
+=======
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
   function resizeSnapshot(originalImage, width, height) {
       const canvas = document.createElement('canvas');
       canvas.width = width;
@@ -817,7 +987,11 @@ function checkVicinity(spriteA, spriteB, vicinityDistance) {
       */
       playerGroup_data = exportSpriteGroupToJSON(this);
       event_chain = []
+<<<<<<< HEAD
       //console.log('sent',playerGroup_data);
+=======
+      console.log('sent',playerGroup_data);
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
       
       last_dispatch_complete = false;
       data_req(playerGroup_data).then(resp_json => {

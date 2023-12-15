@@ -47,6 +47,7 @@ player_policy_function = {'when_sees_normal_player': {'punish':0.1, 'avoid':0.7,
 '''
 state_importance = {k:1/len(player_op_policy_function) for k in player_op_policy_function.keys()}
 
+<<<<<<< HEAD
 def policy_to_vec(policy,is_mixed=True):
     policy_vec = np.asarray([policy['when_sees_apple']['eat'],
                   policy['when_sees_banana']['eat'],
@@ -57,6 +58,8 @@ def policy_to_vec(policy,is_mixed=True):
         policy_vec = (policy_vec >= 0.5).astype(int)
     return policy_vec.tolist()
         
+=======
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
 
 state_evals = {
     'when_sees_normal_player': lambda player : True if 'player' in player['surroundingInfos'] and any([not x['poisoned_player'] for x in player['surroundingInfos']['player']]) else False,
@@ -168,6 +171,7 @@ def control_player(player,policy_function=player_op_policy_function):
     _prob_sum = np.sum([x['action_probability'] for x in actions_to_select_from])
     selected_action_index = np.random.choice(np.arange(len(actions_to_select_from)),p=[x['action_probability']/_prob_sum for x in actions_to_select_from])
     return (actions_to_select_from[selected_action_index]['action'],actions_to_select_from[selected_action_index])
+<<<<<<< HEAD
  
  
 def state_to_vec(state):
@@ -229,6 +233,15 @@ def handle_player_sprites(state,action_vec_policy_ma):
         raise
         
     return {'action':actions, 'visit_locations':visit_locations}
+=======
+    
+
+def handle_player_sprites(state,player_policy):
+    actions = []
+    for player in state:
+        actions.append(control_player(player,player_policy))
+    return actions
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
 
 def create_observation_for_memory(state,actions,rewards,events,time_st):
     batch_data = []
@@ -236,12 +249,20 @@ def create_observation_for_memory(state,actions,rewards,events,time_st):
     for idx,player in enumerate(state):
         player_data = dict()
         max_id = max_id + 1
+<<<<<<< HEAD
         #play_pos = (math.floor(player['x']/config.TILE_SIZE),math.floor(player['y']/config.TILE_SIZE))
+=======
+        play_pos = (math.floor(player['x']/config.TILE_SIZE),math.floor(player['y']/config.TILE_SIZE))
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
         player_data['id'] = max_id
         player_data['player_id'] = player['name']
         player_data['observation_time'] = time_st
         player_data['observation'] = surrounding_info_to_sentence(player)
+<<<<<<< HEAD
         player_data['action_taken'] = str(actions[idx])
+=======
+        player_data['action_taken'] = action_code[actions[idx]['action']] + object_code[actions[idx]['action_attribute']['object']] if 'object' in actions[idx]['action_attribute'] else action_code[actions[idx]['action']]
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
         player_data['events'] = ','.join(events)
         player_data['reward_received'] = rewards[idx]
         batch_data.append(player_data)

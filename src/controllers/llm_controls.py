@@ -52,7 +52,11 @@ strat = {'when_sees_normal_player': {'punish': 0.2, 'avoid': 0.6, 'do_nothing': 
 '''
 def get_policy_function(req_ct,last_obs_time,curr_policy):
     if req_ct == 0:
+<<<<<<< HEAD
         return player_sample_policy_function
+=======
+        return player_op_policy_function
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
     else:
         events_since_last_update = query_db(last_obs_time)
         events_since_last_update = random.sample(events_since_last_update, len(events_since_last_update)//3)

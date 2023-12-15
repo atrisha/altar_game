@@ -112,5 +112,9 @@ function exportSpriteGroupToJSON(game_obj) {
         spritesData.push(spriteData);
     });
 
+<<<<<<< HEAD
     return JSON.stringify({player_data:spritesData,event_data:event_chain,req_id:ticker}, null, 4);
+=======
+    return JSON.stringify({player_data:spritesData,event_data:event_chain}, null, 4);
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
 }

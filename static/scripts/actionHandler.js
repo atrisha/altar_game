@@ -115,13 +115,18 @@ function getLayerIndices(layer) {
 }
 
 function handleExplore(options){
+<<<<<<< HEAD
     let { easystar, easystar_alt, player, spawnlayer_arr, walk_arr, visit_locs, game } = options;
+=======
+    let { easystar, easystar_alt, player, spawnlayer_arr, walk_arr, game } = options;
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
     let easystar_obj;
     if (typeof player.current_path !== 'undefined' && player.currentPathIndex < player.current_path.length){
         console.log(player.name+' will walk '+player.currentPathIndex+'/'+player.current_path.length);
         walkPath(scene,player,player.current_path,game.config.rps*32);
         
     } else {
+<<<<<<< HEAD
         if (visit_locs == null){
             spwans = game.spawnSpriteAtRandomTile();
             to_visit = {x: spwans.worldX/32, y: spwans.worldY/32} 
@@ -129,6 +134,9 @@ function handleExplore(options){
             to_visit = visit_locs
         }
         
+=======
+        spwans = game.spawnSpriteAtRandomTile();
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
         
 
         if (spawnlayer_arr[Math.floor(player.x/32)][Math.floor(player.y/32)] == 1){
@@ -136,7 +144,11 @@ function handleExplore(options){
         } else {
             easystar_obj = easystar_alt
         }
+<<<<<<< HEAD
         easystar_obj.findPath(Math.floor(player.y/32), Math.floor(player.x/32), Math.floor(to_visit.y), Math.floor(to_visit.x), function( path ) {
+=======
+        easystar_obj.findPath(Math.floor(player.y/32), Math.floor(player.x/32), Math.floor(spwans.worldY/32), Math.floor(spwans.worldX/32), function( path ) {
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
         console.log(player.name+' new path generated ');
         if (path === null) {
             console.log('no path');
@@ -145,7 +157,11 @@ function handleExplore(options){
             console.log(spawnlayer_arr[Math.floor(player.x/32)][Math.floor(player.y/32)]);
             console.log(walk_arr[Math.floor(player.x/32)][Math.floor(player.y/32)]);
             console.log('target',Math.floor(spwans.worldX/32),Math.floor(spwans.worldY/32))
+<<<<<<< HEAD
             game.reset_player(player)
+=======
+            throw new Error('no path error')
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
         } else {
             if (path.length>0) {
                 world_path = path.map(point => ({x: point.y*32+16, y: point.x*32+16}));
@@ -265,7 +281,11 @@ function handleAvoidObject(options){
             console.log(spawnlayer_arr[Math.floor(player.x/32)][Math.floor(player.y/32)]);
             console.log(walk_arr[Math.floor(player.x/32)][Math.floor(player.y/32)]);
             //console.log('target',Math.floor(spwans.worldX/32),Math.floor(spwans.worldY/32))
+<<<<<<< HEAD
             game.reset_player(player)
+=======
+            throw new Error('no path error')
+>>>>>>> 8d0ed88f26d73f75e887e62ed0ab21090ae60a04
         } else {
             if (path.length>0) {
                 world_path = path.map(point => ({x: point.y*32+16, y: point.x*32+16}));
